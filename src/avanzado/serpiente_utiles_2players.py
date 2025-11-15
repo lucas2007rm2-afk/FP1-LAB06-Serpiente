@@ -14,7 +14,13 @@ def comprueba_choque(serpiente: list[tuple[int, int]], paredes: list[list[tuple[
     Devuelve:
     True si la serpiente se ha chocado consigo misma, con las paredes o con la otra serpiente, False en caso contrario.
     '''    
-    # TODO: Copia tu solución anterior y añádele la comprobación de choque con la otra serpiente
+    if serpiente[0] in serpiente[1:] or serpiente[0] in otra_serpiente:
+        return True
+    
+    for pared in paredes:
+        if serpiente[0] in pared:
+            return True
+        
     return False
 
 def ha_comido_serpiente(serpiente: list[tuple[int, int]], posicion_comida: tuple[int, int]) -> bool:
@@ -28,7 +34,10 @@ def ha_comido_serpiente(serpiente: list[tuple[int, int]], posicion_comida: tuple
     Devuelve:
     True si la cabeza de la serpiente está en la misma posición que la comida, False en caso contrario.
     '''
-    # TODO: Copia tu solución anterior
+    if serpiente[0]==posicion_comida:
+        return True
+    else:
+        return False
 
 def crece_serpiente(serpiente: list[tuple[int, int]]) -> None:
     '''
@@ -37,7 +46,7 @@ def crece_serpiente(serpiente: list[tuple[int, int]]) -> None:
     Parámetros:
     serpiente: Lista de tuplas representando las posiciones (columna, fila) de la serpiente.
     '''
-    # TODO: Copia tu solución anterior
+    serpiente.insert(-1,serpiente[-1])
 
 def genera_comida_aleatoria(serpiente_jugador: list[tuple[int, int]], serpiente_ia: list[tuple[int, int]], paredes: list[list[tuple[int, int]]], filas: int, columnas: int) -> tuple[int, int]:
     '''
@@ -53,8 +62,21 @@ def genera_comida_aleatoria(serpiente_jugador: list[tuple[int, int]], serpiente_
     Devuelve:
     Posición aleatoria para la comida (columna, fila).
     '''
-    # TODO: Copia tu solución anterior y añádele la comprobación de que la comida no se genere sobre la serpiente_ia
-    return (0, 0)
+    comida=tuple()
+    valido=False
+
+    while valido==False:
+        valido=True
+        x=random.randint(0,columnas-1)
+        y=random.randint(0,filas-1)
+        comida=(x,y)
+        for pared in paredes:
+            if comida in pared:
+                valido=False
+        if comida in serpiente_jugador or comida in serpiente_ia:
+            valido=False
+        
+    return comida
 
 def mueve_serpiente(serpiente: list[tuple[int, int]], direccion: str, filas: int, columnas: int) -> None:
     '''
@@ -68,8 +90,45 @@ def mueve_serpiente(serpiente: list[tuple[int, int]], direccion: str, filas: int
     filas: Número de filas en el tablero de juego.
     columnas: Número de columnas en el tablero de juego.
     '''
-    # TODO: Copia tu solución anterior
-    pass
+    if direccion=="Left":
+        y=serpiente[0][1]  
+        if serpiente[0][0]==0: 
+            x=columnas-1
+        else:
+            x=serpiente[0][0]-1 
+        
+        serpiente.insert(0,(x,y))
+        serpiente.pop()
+
+    if direccion=="Right":
+        y=serpiente[0][1]  
+        if serpiente[0][0]==columnas-1: 
+            x=0
+        else:
+            x=serpiente[0][0]+1 
+        
+        serpiente.insert(0,(x,y))
+        serpiente.pop()
+
+    if direccion=="Up":
+        x=serpiente[0][0]  
+        if serpiente[0][1]==0: 
+            y=filas-1
+        else:
+            y=serpiente[0][1]-1 
+        
+        serpiente.insert(0,(x,y))
+        serpiente.pop()
+
+    if direccion=="Down":
+        x=serpiente[0][0]  
+        if serpiente[0][1]==filas-1: 
+            y=0
+        else:
+            y=serpiente[0][1]+1 
+        
+        serpiente.insert(0,(x,y))
+        serpiente.pop()
 
 def decide_movimiento_ia(serpiente_rival: list[tuple[int, int]], serpiente_jugador: list[tuple[int, int]],
     paredes: list[list[tuple[int, int]]], posicion_comida: tuple[int, int],
@@ -91,18 +150,29 @@ def decide_movimiento_ia(serpiente_rival: list[tuple[int, int]], serpiente_jugad
     # Construiremos una lista de (distancia_a_la_comida, direccion)
     opciones = []
     for d in ("Up", "Down", "Left", "Right"):
-        # TODO: Haz una copia de la serpiente rival y muévela en la dirección d
         
+        serpiente_copia=serpiente_rival.copy()
+        mueve_serpiente(serpiente_copia,d,filas,columnas)
 
-        # TODO: Si la copia no se ha chocado
-        if ():    
-            # TODO: Calcula la distancia de la cabeza a la comida
-            # Usa la distancia Manhattan: valor absoluto de la diferencia en x + valor absoluto de la diferencia de y
-            pass
-            # TODO: Añade a la lista opciones una tuplºa con la distancia y la dirección
         
-    # TODO: Si no hay opciones válidas, devolvemos "Up" por defecto
+        if comprueba_choque(serpiente_copia,paredes,serpiente_jugador)==False:    
+            
+            x1=serpiente_copia[0][0]
+            x2=posicion_comida[0]
+            y1=serpiente_copia[0][1]
+            y2=posicion_comida[1]
+            
+            distancia_a_la_comida= abs(x1-x2) + abs(y1-y2)
+            
+            opciones.append((distancia_a_la_comida,d))
     
-    # TODO: Devolvemos la dirección que minimiza la distancia a la comida
+    k=-1
+    if opciones!=[]:
+        for i in opciones:
+            if i[0]<k or k==-1:
+                k=i[0]
+                direccion=i[1]
+        return direccion
+    
     return "Up" 
 
